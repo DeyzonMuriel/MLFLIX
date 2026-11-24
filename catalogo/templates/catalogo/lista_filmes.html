@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineVibe | Catálogo de Filmes</title>
+    <link rel="stylesheet" href="{% static 'catalogo/style.css' %}">
+</head>
+<body>
+    <header class="topo">
+        <div class="container">
+            <p class="marca">CINEVIBE</p>
+            <h1>Catálogo de filmes</h1>
+            <p>Encontre filmes por título, diretor ou categoria.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="painel">
+            <h2>Pesquisar e filtrar</h2>
+            <form method="get" class="filtros">
+                <label>
+                    Título
+                    <input type="text" name="q" value="{{ pesquisa }}" placeholder="Digite o título...">
+                </label>
+                <label>
+                    Diretor
+                    <select name="diretor">
+                        <option value="">Todos os diretores</option>
+                        {% for diretor in diretores %}
+                            <option value="{{ diretor.id }}" {% if diretor_selecionado == diretor.id|stringformat:"s" %}selected{% endif %}>{{ diretor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    Categoria
+                    <select name="categoria">
+                        <option value="">Todas as categorias</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria_selecionada == categoria.id|stringformat:"s" %}selected{% endif %}>{{ categoria.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="acoes">
+                    <button type="submit">Buscar</button>
+                    <a class="limpar" href="{% url 'listar_filmes' %}">Limpar filtros</a>
+                </div>
+            </form>
+        </section>
+
+        <div class="resultado">
+            <h2>Filmes encontrados</h2>
+            <span>{{ pagina.paginator.count }} registro(s)</span>
+        </div>
+
+        <section class="lista">
+            {% for filme in pagina %}
+                <article class="filme">
+                    <div class="ano">{{ filme.ano }}</div>
+                    <div>
+                        <h3>{{ filme.titulo }}</h3>
+                        <p><strong>Diretor:</strong> {{ filme.diretor.nome }}</p>
+                        <p><strong>Categoria:</strong> {{ filme.categoria.nome }}</p>
+                        {% if filme.sinopse %}<p class="sinopse">{{ filme.sinopse }}</p>{% endif %}
+                    </div>
+                </article>
+            {% empty %}
+                <p class="vazio">Nenhum filme encontrado. Tente alterar a pesquisa ou os filtros.</p>
+            {% endfor %}
+        </section>
+
+        {% if pagina.paginator.num_pages > 1 %}
+        <nav class="paginacao" aria-label="Paginação">
+            {% if pagina.has_previous %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ pagina.previous_page_number }}">← Anterior</a>
+            {% else %}
+                <span class="desativado">← Anterior</span>
+            {% endif %}
+            <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ pagina.next_page_number }}">Próxima →</a>
+            {% else %}
+                <span class="desativado">Próxima →</span>
+            {% endif %}
+        </nav>
+        {% else %}
+        <p class="pagina-unica">Página 1 de 1</p>
+        {% endif %}
+        <footer>Projeto acadêmico • Programação para Internet • Dupla M e L</footer>
+    </main>
+</body>
+</html>
